@@ -4,7 +4,7 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SamurAIGPT/ai-wedding-photo)
 
-🔗 **Live Demo:** [ai-wedding-photo.vercel.app](https://ai-wedding-photo-five-olive.vercel.app/)
+🔗 **Live Demo:** [ai-wedding-photo.vercel.app](https://ai-wedding-photo.vercel.app/)
 
 ---
 
