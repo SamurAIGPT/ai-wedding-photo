@@ -1,6 +1,9 @@
-# 👰 AI Wedding Photo — AI Wedding Photo Generator SaaS
+# 👰 AI Wedding Photo — Open-Source AI Wedding Photo Generator SaaS (Free Remini / Facetune Wedding Alternative)
 
-> **Generate dreamy, high-fidelity, and realistic wedding photos with advanced face-swapping AI.** Upload your portrait, choose a stunning wedding scene template, and let `nano-banana-pro-edit` do the magic.
+> **Generate dreamy, photorealistic wedding photos from any portrait in seconds.** A production-ready, self-hostable Next.js SaaS boilerplate with scene template selection, AI face-swap compositing, and built-in Stripe billing. A free open-source alternative to Remini Wedding, WedReports AI, and Facetune — powered by the MuAPI AI engine.
+
+**Tech stack:** Next.js 14 (App Router) · Prisma · PostgreSQL · NextAuth (Google OAuth) · Stripe · Tailwind CSS · MuAPI nano-banana-pro-edit
+**Use cases:** Wedding photographers · Engaged couples · Bridal marketing agencies · Wedding venue promotions · Pre-wedding photo previews · Social media wedding content · Event planners · AI photo gifting
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SamurAIGPT/ai-wedding-photo)
 
