@@ -145,17 +145,6 @@ ai-wedding-photo/
             └── user.js         # Credit balance management
 ```
 
----
-
-## 🔏 Legal Pages
-
-| Page | Path | Purpose |
-| :--- | :--- | :--- |
-| **Privacy Policy** | `/privacy` | Required by Google OAuth App verification — discloses data collection (email, photos) and usage |
-| **Terms of Service** | `/terms` | Required by Stripe — covers credit usage, non-refund policy, and AI output disclaimer |
-
----
-
 ## 🤝 Tech Stack
 
 | Layer | Technology |
