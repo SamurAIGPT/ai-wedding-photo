@@ -1,206 +1,121 @@
 "use client";
 
-import { useSession, signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
-import { IoCheckmarkCircleOutline, IoWalletOutline, IoInformationCircleOutline } from "react-icons/io5";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { FaCheck, FaInfoCircle } from "react-icons/fa";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
-function PricingContent() {
+const PLANS = [
+  { id: "basic", name: "Basic Pack", price: "$5", credits: 100, description: "Perfect for testing custom prompts and exploring styles." },
+  { id: "standard", name: "Standard Pack", price: "$10", credits: 250, description: "Ideal for regular creators wanting high resolution outputs." },
+  { id: "pro", name: "Professional Pack", price: "$20", credits: 600, description: "Designed for power users demanding batch exports and high speed.", popular: true },
+  { id: "business", name: "Business Pack", price: "$50", credits: 2000, description: "Maximum value pack for agency workflows and large volume generations." }
+];
+
+export default function Pricing() {
   const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
-  const [loadingPlan, setLoadingPlan] = useState("");
-  const [alertMsg, setAlertMsg] = useState("");
+  const [loadingPlan, setLoadingPlan] = useState(null);
 
-  const success = searchParams.get("success");
-  const canceled = searchParams.get("canceled");
-
-  useEffect(() => {
-    if (success) {
-      setAlertMsg("Payment successful! Your credits have been updated.");
-    } else if (canceled) {
-      setAlertMsg("Payment was canceled. No credits were deducted.");
-    }
-  }, [success, canceled]);
-
-  const handlePurchase = async (planId) => {
+  const handleCheckout = async (planId) => {
     if (status !== "authenticated") {
-      signIn("google");
+      toast.error("You must sign in with Google to purchase credit packages.");
       return;
     }
 
     setLoadingPlan(planId);
     try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        }
+      const { data } = await axios.post("/api/checkout", { planId });
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        alert("Failed to create checkout session");
+        throw new Error("No redirection URL returned");
       }
     } catch (err) {
       console.error(err);
-      alert("Error initiating checkout");
+      toast.error(err.response?.data?.error || "Failed to trigger Stripe checkout session.");
     } finally {
-      setLoadingPlan("");
+      setLoadingPlan(null);
     }
   };
 
-  const PLANS = [
-    {
-      id: "basic",
-      name: "Basic Pack",
-      price: "$5.00",
-      credits: 1000,
-      features: [
-        "1000 AI Photo Credits",
-        "Approx. 55 wedding generations",
-        "Standard face blending engine",
-        "Classic templates unlocked"
-      ]
-    },
-    {
-      id: "standard",
-      name: "Standard Pack",
-      price: "$10.00",
-      credits: 2000,
-      features: [
-        "2000 AI Photo Credits",
-        "Approx. 110 wedding generations",
-        "All templates unlocked",
-        "Custom wedding style settings",
-        "HD download option enabled"
-      ]
-    },
-    {
-      id: "pro",
-      name: "Professional Pack",
-      price: "$20.00",
-      credits: 4000,
-      popular: true,
-      features: [
-        "4000 AI Photo Credits",
-        "Approx. 220 wedding generations",
-        "Priority AI generation queue",
-        "HD download option enabled",
-        "Exclusive backgrounds and presets"
-      ]
-    },
-    {
-      id: "business",
-      name: "Business Pack",
-      price: "$50.00",
-      credits: 10000,
-      features: [
-        "10000 AI Photo Credits",
-        "Approx. 550 wedding generations",
-        "Priority AI generation queue",
-        "Dedicated creations portfolio storage",
-        "Full commercial license options"
-      ]
-    }
-  ];
-
   return (
-    <main className="flex-1 py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full bg-[#09090b]">
-      
-      {/* Alerts */}
-      {alertMsg && (
-        <div className="mb-10 rounded-xl border border-emerald-950 bg-emerald-950/20 p-4 flex items-center gap-3 text-sm text-emerald-400">
-          <IoInformationCircleOutline className="h-5 w-5 shrink-0 text-emerald-500" />
-          <p>{alertMsg}</p>
+    <div className="flex min-h-dvh flex-col bg-bg-page select-none text-primary-text overflow-hidden">
+      <Toaster position="top-right" />
+      <Navbar />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-12 sm:px-6 lg:px-8 flex flex-col gap-10 overflow-y-auto scrollbar-subtle items-center">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-1">
+            <FaInfoCircle className="text-primary text-xs" />
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Pricing Plans</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight uppercase">Buy Credits Packs</h1>
+          <p className="text-xs sm:text-sm text-secondary-text max-w-lg leading-relaxed">
+            Purchase flexible credit packages to perform high-resolution predictions. Keep all profits — we handle AI infrastructure.
+          </p>
         </div>
-      )}
 
-      <div className="text-center max-w-xl mx-auto space-y-4 mb-16">
-        <h1 className="font-outfit text-4xl font-extrabold tracking-tight text-zinc-100">
-          Choose Your Credit Plan
-        </h1>
-        <p className="text-zinc-400 text-sm">
-          Purchase credits one-time to generate your AI wedding photos. 
-          Each AI generation consumes <span className="font-bold text-fuchsia-400">18 credits</span>.
-        </p>
-      </div>
-
-      {/* Pricing Cards Grid */}
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-        {PLANS.map((plan) => (
-          <div
-            key={plan.id}
-            className={`relative rounded-2xl bg-zinc-900/40 p-6 flex flex-col justify-between border hover:border-zinc-700 hover:shadow-2xl transition duration-300 ${
-              plan.popular 
-                ? "border-fuchsia-500/50 shadow-fuchsia-500/5" 
-                : "border-zinc-800"
-            }`}
-          >
-            {plan.popular && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-md">
-                Most Popular
-              </span>
-            )}
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-bold text-zinc-200">{plan.name}</h3>
-                <div className="mt-2 flex items-baseline gap-1 text-zinc-100">
-                  <span className="text-3xl font-extrabold font-outfit">{plan.price}</span>
-                  <span className="text-xs text-zinc-500">/ one-time</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-xl bg-zinc-900/80 p-3.5 border border-zinc-800">
-                <IoWalletOutline className="h-5 w-5 text-fuchsia-400" />
-                <span className="text-sm font-bold text-fuchsia-400 font-mono">
-                  {plan.credits} Credits
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative bg-bg-card border rounded-lg p-6 flex flex-col justify-between gap-6 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                plan.popular ? "border-primary shadow-xl shadow-primary/5 scale-105" : "border-divider/50 shadow-md"
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-black uppercase px-3 py-1 rounded-full tracking-wider shadow">
+                  Most Popular
                 </span>
+              )}
+
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-extrabold uppercase tracking-wide text-primary-text">{plan.name}</h3>
+                  <p className="text-2xl font-black tracking-tight text-white">{plan.price}</p>
+                </div>
+                
+                <div className="text-xs bg-bg-page/50 border border-divider/30 p-3 rounded text-center font-extrabold text-primary">
+                  {plan.credits} Art Credits
+                </div>
+
+                <p className="text-xs text-secondary-text leading-relaxed font-medium min-h-[3rem]">{plan.description}</p>
+                
+                <ul className="space-y-2 border-t border-divider/30 pt-4 text-xs font-semibold text-secondary-text">
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="text-primary text-[10px]" />
+                    <span>Dynamic aspect ratios</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="text-primary text-[10px]" />
+                    <span>HD image downloads</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="text-primary text-[10px]" />
+                    <span>No subscription required</span>
+                  </li>
+                </ul>
               </div>
 
-              <div className="border-t border-zinc-800 my-2"></div>
-
-              <ul className="space-y-3 text-xs text-zinc-400">
-                {plan.features.map((feat) => (
-                  <li key={feat} className="flex items-start gap-2 leading-relaxed">
-                    <IoCheckmarkCircleOutline className="h-4 w-4 text-fuchsia-500 shrink-0 mt-0.5" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-8">
               <button
-                onClick={() => handlePurchase(plan.id)}
-                disabled={loadingPlan === plan.id}
-                className={`w-full rounded-xl py-3.5 text-center text-xs font-bold tracking-wider uppercase transition cursor-pointer ${
-                  plan.popular
-                    ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:brightness-110 active:scale-98"
-                    : "border border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
-                } disabled:opacity-50`}
+                onClick={() => handleCheckout(plan.id)}
+                disabled={loadingPlan !== null}
+                className={`w-full py-3 rounded-full text-xs font-bold transition-all shadow-md cursor-pointer select-none active:scale-[0.98] ${
+                  plan.popular ? "bg-primary text-white hover:bg-primary-hover shadow-primary/15" : "bg-bg-page hover:bg-bg-card text-primary-text border border-divider"
+                }`}
               >
-                {loadingPlan === plan.id ? "Processing..." : `Get ${plan.credits} Credits`}
+                {loadingPlan === plan.id ? "Loading checkout..." : "Purchase Credits"}
               </button>
             </div>
-          </div>
-        ))}
-      </div>
-    </main>
-  );
-}
+          ))}
+        </div>
+      </main>
 
-export default function Pricing() {
-  return (
-    <Suspense fallback={
-      <div className="flex-1 flex items-center justify-center bg-[#09090b]">
-        <div className="h-10 w-10 rounded-full border-4 border-zinc-800 border-t-fuchsia-500 animate-spin"></div>
-      </div>
-    }>
-      <PricingContent />
-    </Suspense>
+      <Footer />
+    </div>
   );
 }

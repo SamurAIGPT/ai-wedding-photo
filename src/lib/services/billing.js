@@ -14,7 +14,7 @@ export const BillingService = {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `AI Wedding Photo - ${plan.name}`,
+              name: `${config.stripe.plans[planId].name}`,
               description: `Purchase ${plan.credits} credits to perform AI generations.`,
             },
             unit_amount: plan.price,
