@@ -60,7 +60,7 @@
 | **Stripe** | `STRIPE_SECRET_KEY` | Stripe API Secret Key |
 | | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Publishable Key |
 | | `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Secret (`checkout.session.completed`) |
-| **AI Model** | `MUAPIAPP_API_KEY` | Get from [muapi.ai](https://muapi.ai/account/api-keys) dashboard |
+| **AI Model** | `MUAPIAPP_API_KEY` | Get from [muapi.ai](https://muapi.ai/account/api-keys?utm_source=github&utm_medium=readme&utm_campaign=ai-wedding-photo) dashboard |
 
 ---
 
