@@ -19,6 +19,8 @@
 
 > 🎨 **[Explore 50+ more open-source AI apps →](https://github.com/Anil-matcha/awesome-generative-ai-apps)**
 
+https://github.com/user-attachments/assets/90effc98-c8ef-438f-94d9-66aa94ded71b
+
 ## 📸 UI Preview
 
 ![AI Wedding Photo Editor UI](https://cdn.muapi.ai/data/2/613210095251/Screenshot_2026-05-28_145754.png)
