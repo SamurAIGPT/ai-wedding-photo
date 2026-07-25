@@ -27,15 +27,22 @@ export async function POST(req) {
       return new NextResponse("Missing input portrait image", { status: 400 });
     }
 
-    // 1. Deduct credits
-    const cost = config.ai.generationCost || 18;
-    try {
-      await UserService.deductCredits(session.user.id, cost);
-    } catch (err) {
-      return new NextResponse("Insufficient credits", { status: 402 });
+    const headerApiKey = req.headers.get("x-custom-api-key");
+    const customApiKey = headerApiKey || body.customApiKey || session.user.customApiKey || null;
+    const isUsingCustomKey = Boolean(customApiKey && customApiKey.trim().length > 0);
+
+    // Deduct 18 credits (0 if custom API key active)
+    const cost = isUsingCustomKey ? 0 : (config.ai.generationCost || 18);
+
+    if (!isUsingCustomKey && cost > 0) {
+      try {
+        await UserService.deductCredits(session.user.id, cost);
+      } catch (err) {
+        return new NextResponse("Insufficient credits", { status: 402 });
+      }
     }
 
-    const apiKey = config.ai.apiKey;
+    const apiKey = isUsingCustomKey ? customApiKey.trim() : config.ai.apiKey;
     let resultImage = "";
     let requestId = `mock_${Date.now()}`;
     let status = "processing";
@@ -50,7 +57,6 @@ export async function POST(req) {
           imagesList.push(templateImage);
         }
 
-        // Correct endpoint: POST /api/v1/{model-name}
         const submitRes = await fetch(
           `https://api.muapi.ai/api/v1/nano-banana-pro-edit?webhook=${encodeURIComponent(webhookUrl)}`,
           {
@@ -100,7 +106,6 @@ export async function POST(req) {
                 const state = pollJson.status || pollJson.state;
 
                 if (state === "completed" || state === "succeeded") {
-                  // outputs array contains image URLs
                   const outputs = pollJson.outputs || [];
                   resultImage =
                     outputs[0] ||
@@ -131,8 +136,7 @@ export async function POST(req) {
 
     // Mock Mode fallback or if polling timed out
     if (status === "processing") {
-      await new Promise(resolve => setTimeout(resolve, 3000)); // simulate delay
-      // Use one of the mock wedding templates as fallback
+      await new Promise(resolve => setTimeout(resolve, 3000));
       const randomIndex = Math.floor(Math.random() * MOCK_WEDDING_PHOTOS.length);
       resultImage = MOCK_WEDDING_PHOTOS[randomIndex];
       status = "completed";

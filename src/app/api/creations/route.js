@@ -14,6 +14,11 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
+    const headerApiKey = req.headers.get("x-custom-api-key");
+    const customApiKey = headerApiKey || session.user.customApiKey || null;
+    const apiKey = (customApiKey && customApiKey.trim().length > 0) ? customApiKey.trim() : config.ai.apiKey;
+    const hasApiKey = apiKey && !apiKey.includes("your_") && apiKey.trim() !== "";
+
     if (id) {
       const creation = await prisma.weddingPhotoCreation.findUnique({
         where: { id, userId: session.user.id }
@@ -21,10 +26,10 @@ export async function GET(req) {
       if (!creation) return new NextResponse("Not Found", { status: 404 });
       
       // On-the-fly check if still processing
-      if (creation.status === "processing" && creation.requestId && !creation.requestId.startsWith("mock_")) {
+      if (creation.status === "processing" && creation.requestId && !creation.requestId.startsWith("mock_") && hasApiKey) {
         try {
           const checkRes = await fetch(`https://api.muapi.ai/api/v1/predictions/${creation.requestId}/result`, {
-            headers: { "x-api-key": config.ai.apiKey }
+            headers: { "x-api-key": apiKey }
           });
           if (checkRes.ok) {
             const checkJson = await checkRes.json();
@@ -66,10 +71,10 @@ export async function GET(req) {
 
     // Check all processing records on-the-fly (robust bypass polling)
     const updatedCreations = await Promise.all(creations.map(async (creation) => {
-      if (creation.status === "processing" && creation.requestId && !creation.requestId.startsWith("mock_")) {
+      if (creation.status === "processing" && creation.requestId && !creation.requestId.startsWith("mock_") && hasApiKey) {
         try {
           const checkRes = await fetch(`https://api.muapi.ai/api/v1/predictions/${creation.requestId}/result`, {
-            headers: { "x-api-key": config.ai.apiKey }
+            headers: { "x-api-key": apiKey }
           });
           if (checkRes.ok) {
             const checkJson = await checkRes.json();
