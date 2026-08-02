@@ -21,6 +21,11 @@
 
 https://github.com/user-attachments/assets/90effc98-c8ef-438f-94d9-66aa94ded71b
 
+## Related Projects
+
+- [Nano Banana image-editing playground](https://muapi.ai/playground/nano-banana-2-edit) — Try the model used for wedding-photo compositing.
+- [MuAPI access keys](https://muapi.ai/access-keys) — Create the API key used by this app.
+
 ## 📸 UI Preview
 
 ![AI Wedding Photo Editor UI](https://cdn.muapi.ai/data/2/613210095251/Screenshot_2026-05-28_145754.png)
